@@ -811,13 +811,13 @@ class Maze {
     getBallValidPosition(x, y) {
         // 限制小球在迷宮範圍內
         if (x <= 0) (x = 0), (this.ballSpeedX = 0);
-        if (y <= 0) y = 0;
+        if (y <= 0) (y = 0), (this.ballSpeedY = 0);
 
         if (x >= this.w * this.step - this.ballDia)
             (x = this.w * this.step - this.ballDia), (this.ballSpeedX = 0);
 
         if (y >= this.h * this.step - this.ballDia)
-            y = this.h * this.step - this.ballDia;
+            (y = this.h * this.step - this.ballDia), (this.ballSpeedY = 0);
 
         // 小球四個角的坐標轉換為迷宮坐標，
         // 即除以單元格長度後去掉小數部分
@@ -1025,10 +1025,10 @@ class Maze {
         // 阻止默認移動行為
         evt.preventDefault();
 
-        // 不同方向的加速度
-        var step = 5;
+        // 不同方向的加速度(減小步長以防止穿牆)
+        var step = 2;
         // 每次移動小球的延時
-        var delay = 30;
+        var delay = 20;
 
         switch (evt.key) {
             case "w":
