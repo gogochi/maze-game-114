@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,
   initial-scale=1.0, user-scalable=no">
-  <title>在线走迷宫游戏</title>
+  <title>在線走迷宮遊戲</title>
   <link rel="shortcut icon" href="./img/favicon.svg" type="image/x-icon">
   <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"> -->
   <link rel="stylesheet" href="./css/materialize.min.css">
@@ -22,10 +22,10 @@
         <img alt="" src="https://img.shields.io/github/forks/knightyun/maze-game?style=social">
       </a>
     </div>
-    <!-- 迷宫模块 -->
+    <!-- 迷宮模塊 -->
     <div class="row">
       <div class="maze">
-        <!-- 迷宫地图 -->
+        <!-- 迷宮地圖 -->
         <canvas id="maze-map" class="z-depth-5"></canvas>
         <!-- 小球 -->
         <div id="maze-ball" class="deep-orange accent-3"></div>
@@ -35,36 +35,36 @@
     <div class="row center-align">
       <div class="control teal col s12 m6 offset-m3
       card-panel z-depth-3 row">
-        <!-- 地图尺寸 -->
+        <!-- 地圖尺寸 -->
         <div class="row valign-wrapper" style="margin-bottom: 0;">
           <div class="col s5">
-            <p class="teal-text text-lighten-5">地图大小：</p>
+            <p class="teal-text text-lighten-5">地圖大小：</p>
           </div>
           <div class="range-field col s7">
             <input type="range" class="maze-size teal lighten-2"
             value="31" min="31" max="101" step="2" />
           </div>
         </div>
-        <!-- 游戏难度 -->
+        <!-- 遊戲難度 -->
         <div class="row input-field teal lighten-1" style="margin-top: 0;">
           <div class="col s5">
-            <p class="teal-text text-lighten-5">游戏难度：</p>
+            <p class="teal-text text-lighten-5">遊戲難度：</p>
           </div>
           <div class="col s7">
             <select class="game-level">
-              <option value="0" selected>简单</option>
-              <option value="2">困难</option>
-              <option value="1">复杂</option>
+              <option value="0" selected>簡單</option>
+              <option value="2">困難</option>
+              <option value="1">複雜</option>
             </select>
           </div>
         </div>
 
-        <!-- 游戏控制 -->
+        <!-- 遊戲控制 -->
         <div class="row">
           <div class="col s6">
             <button class="start-game btn waves-effect waves-light
             teal-text text-lighten-5" onclick="startGame()">
-              开始游戏
+              開始遊戲
             </button>
           </div>
           <div class="col s6">
@@ -76,7 +76,7 @@
         </div>
       </div>
     </div>
-    <!-- 游戏提示 -->
+    <!-- 遊戲提示 -->
     <div class="fixed-action-btn">
       <a class="game-hint btn-floating btn-large scale-transition
       waves-effect waves-light z-depth-3 teal lighten-1 scale-out"
