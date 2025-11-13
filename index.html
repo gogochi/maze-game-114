@@ -82,55 +82,13 @@
       waves-effect waves-light z-depth-3 teal lighten-1 scale-out"
       onclick="drawHintPath()">提示</a>
     </div>
-    <!-- 彩蛋 -->
-    <div class="row">
-      <a class="waves-effect waves-light btn modal-trigger"
-      href="#modal-surprise">Modal</a>
-      <div id="modal-surprise" class="modal">
-        <div class="modal-content">
-          <div class="fireworks"></div>
-          <div class="surprise-msg">
-            <h4 class="orange-text">恭喜通关</h4>
-            <p class="orange-text text-darken-4 center-align">
-              祝贺你喜提彩蛋一枚
-            </p>
-            <p>✨🎉🎉🎉✨</p>
-            <p class="orange-text text-darken-4 center-align">
-              相信每一个能通关此地图的玩家
-            </p>
-            <p class="orange-text text-darken-4 center-align">
-              内心都住着一个有趣的灵魂
-            </p>
-            <p class="orange-text text-darken-4 center-align">
-              有着百折不挠的毅力，持之以恒的耐心
-            </p>
-            <p class="orange-text text-darken-4 center-align">
-              希望未来的你，也能长此以往
-            </p>
-            <p class="orange-text text-darken-4 center-align">
-              愿坚强和自信与你同在^_^
-            </p>
-            <a href="#!" class="modal-close waves-effect
-						waves-green btn-flat right red-text text-darken-3">关闭</a>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script> -->
   <script src="./js/materialize.min.js"></script>
   <script>
     M.AutoInit();
-    document.addEventListener('DOMContentLoaded', function () {
-      var elms = document.querySelectorAll('.modal');
-      var instances = M.Modal.init(elms, { endingTop: '0' });
-    });
   </script>
-  <!-- <script src="http://code.jquery.com/jquery-1.12.4.min.js"
-  integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script> -->
-  <script src="./js/jquery.min.js"></script>
-  <script src="./js/jquery.fireworks.min.js"></script>
   <script src="./js/maze.js"></script>
 </body>
 

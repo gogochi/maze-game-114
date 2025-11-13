@@ -976,21 +976,14 @@ class Maze {
 
         // 信息提示
         if (this.w === 101 && !this.useHint) {
-            // 游戏彩蛋
-            var elModalTrigger = document.querySelector(".modal-trigger"),
-                elModalClose = document.querySelector(".modal-close");
-
-            $(".fireworks").fireworks({
-                sound: false,
-                opacity: 1,
-                width: "80%",
-                height: "100%",
-            });
-
-            elModalTrigger.click();
-
-            elModalClose.addEventListener("click", () => {
-                $(".fireworks").html("");
+            // 最大地图无提示通关
+            M.toast({
+                html: `<span class="orange-text text-accent-4">
+                        ✨🎉恭喜通关最大地图🎉✨<br>
+                        你拥有百折不挠的毅力和持之以恒的耐心！<br>
+                        请重新开始游戏
+                       </span>`,
+                displayLength: 5000,
             });
         } else {
             // 正常提示
