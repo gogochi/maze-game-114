@@ -69,7 +69,7 @@ class Maze {
      * @memberof Maze
      */
     initMaze() {
-        var mazeGrids = this.mazeGrids,
+        const mazeGrids = this.mazeGrids,
             w = this.w,
             h = this.h,
             step = this.step,
@@ -89,10 +89,10 @@ class Maze {
 
         // 繪畫初始迷宮，包括圍牆，出入口，
         // 並初始化每個單元格的信息
-        for (var y = 0; y < h; y++) {
+        for (let y = 0; y < h; y++) {
             mazeGrids[y] = [];
 
-            for (var x = 0; x < w; x++) {
+            for (let x = 0; x < w; x++) {
                 // 每個單元格的信息，包括坐標，是否為牆，是否為路
                 mazeGrids[y][x] = {
                     // 格子坐標
@@ -134,7 +134,7 @@ class Maze {
      * @memberof Maze
      */
     fillGrid(x, y, color) {
-        var ctx = this.cvsCtx;
+        const ctx = this.cvsCtx;
 
         ctx.fillStyle = color;
         ctx.fillRect(x * this.step, y * this.step, this.step, this.step);
@@ -151,11 +151,11 @@ class Maze {
      * @memberof Maze
      */
     getFrontGrid(x1, y1, x2, y2) {
-        var x = 2 * x2 - x1,
+        const x = 2 * x2 - x1,
             y = 2 * y2 - y1;
 
         // 判斷該格子是否存在；
-        var isExist = !!this.mazeGrids[y] && !!this.mazeGrids[y][x];
+        const isExist = !!this.mazeGrids[y] && !!this.mazeGrids[y][x];
 
         return isExist ? this.mazeGrids[y][x] : null;
     }
@@ -172,7 +172,7 @@ class Maze {
      */
     getFrontLeftGrid(x1, y1, x2, y2) {
         // 先獲取前方格子
-        var x = 2 * x2 - x1,
+        let x = 2 * x2 - x1,
             y = 2 * y2 - y1;
 
         // 再判斷左前方
@@ -187,7 +187,7 @@ class Maze {
         }
 
         // 判斷該格子是否存在；
-        var isExist = !!this.mazeGrids[y] && !!this.mazeGrids[y][x];
+        const isExist = !!this.mazeGrids[y] && !!this.mazeGrids[y][x];
 
         return isExist ? this.mazeGrids[y][x] : null;
     }
@@ -204,7 +204,7 @@ class Maze {
      */
     getFrontRightGrid(x1, y1, x2, y2) {
         // 先獲取前方格子
-        var x = 2 * x2 - x1,
+        let x = 2 * x2 - x1,
             y = 2 * y2 - y1;
 
         // 再判斷右前方
@@ -219,7 +219,7 @@ class Maze {
         }
 
         // 判斷該格子是否存在；
-        var isExist = !!this.mazeGrids[y] && !!this.mazeGrids[y][x];
+        const isExist = !!this.mazeGrids[y] && !!this.mazeGrids[y][x];
 
         return isExist ? this.mazeGrids[y][x] : null;
     }
@@ -240,11 +240,11 @@ class Maze {
         //   格子前面是路；
         // 如果領居數為 0，則尋路結束；
 
-        var mazeGrids = this.mazeGrids,
-            directions = [];
+        const mazeGrids = this.mazeGrids;
+        let directions = [];
 
         // 4 個方向
-        var top = {
+        const top = {
                 x: x,
                 y: y - 1,
             },
@@ -266,7 +266,7 @@ class Maze {
         // 過濾掉無效方向
         directions = directions.filter((item) => {
             // 候選方向的 x, y 坐標
-            var _x = item.x,
+            const _x = item.x,
                 _y = item.y;
 
             // 判斷是否到達出口
@@ -278,7 +278,7 @@ class Maze {
             //     格子不是路；
             //     前方格子存在；
             //     前方格子不是路；
-            var isValidDirection,
+            let isValidDirection,
                 isExist,
                 isExit,
                 isWall,
@@ -324,16 +324,16 @@ class Maze {
      * @memberof Maze
      */
     getDirection(grid1, grid2, grid3) {
-        var directions = ["front", "left", "right"];
+        const directions = ["front", "left", "right"];
 
-        var x1 = grid1.x,
+        const x1 = grid1.x,
             y1 = grid1.y,
             x2 = grid2.x,
             y2 = grid2.y,
             x3 = grid3.x,
             y3 = grid3.y;
 
-        var isFront, isLeft, isRight;
+        let isFront, isLeft, isRight;
 
         isFront = x3 - x2 === x2 - x1 || y3 - y2 === y2 - y1;
 
@@ -370,7 +370,7 @@ class Maze {
      * @memberof Maze
      */
     getRandomDirection(directions) {
-        var results = [];
+        const results = [];
 
         // 打亂數組
         directions.sort(() => 0.5 - Math.random());
@@ -385,10 +385,10 @@ class Maze {
         // 所以需要控制生成多個候選方向時的概率，如 40%
 
         // 多個候選方向可以出現的最大概率
-        var maxRatio = 0.3;
+        const maxRatio = 0.3;
 
         // 當前的隨機概率
-        var ratio = Math.random();
+        const ratio = Math.random();
 
         for (let i = 0; i <= this.gameLevel; i++) {
             // 如果候選方向個數少於相應遊戲難度的，
@@ -426,25 +426,25 @@ class Maze {
         // 左右前方的前方其中一個為路時，只能挖前方和左或右；
         // 以上情況都不是，則使用隨機選擇；
 
-        var isFrontWall, isFrontPath, isFrontLeftPath, isFrontRightPath;
+        let isFrontWall, isFrontPath, isFrontLeftPath, isFrontRightPath;
 
         // 標記每個候選方向的方位
-        var _directions = {
+        const _directions = {
             front: null,
             left: null,
             right: null,
         };
 
         // 處理隨機獲取候選方向的東西情況
-        var randomDirections = [],
-            flagRandom = false;
+        const randomDirections = [];
+        let flagRandom = false;
 
         // 最後匯總返回的方向
-        var returnDirections = [];
+        const returnDirections = [];
 
         // 遍歷判斷 directions 的方位
         directions.forEach((grid) => {
-            var direction = this.getDirection(grid1, grid2, grid);
+            const direction = this.getDirection(grid1, grid2, grid);
 
             _directions[direction] = grid;
         });
@@ -453,7 +453,7 @@ class Maze {
         // 前面一定存在有效格子
         // 不存在是路的情況
         // 如果是圍牆直接返回全部方向，不用繼續判斷
-        var frontGrid = this.getFrontGrid(grid1.x, grid1.y, grid2.x, grid2.y);
+        const frontGrid = this.getFrontGrid(grid1.x, grid1.y, grid2.x, grid2.y);
         isFrontWall = frontGrid.isWall;
 
         if (isFrontWall) return directions;
@@ -462,7 +462,7 @@ class Maze {
         // 此時前面的前面也一定存在有效格子
         // 不存在是圍牆的情況
         // 如果是路直接返回全部對象，不判斷左右
-        var frontFrontGrid = this.getFrontGrid(
+        const frontFrontGrid = this.getFrontGrid(
             grid2.x,
             grid2.y,
             frontGrid.x,
@@ -480,7 +480,7 @@ class Maze {
 
         // 獲取左前方的左前方的格子
         // 左前方一定存在有效格子
-        var frontLeftGrid = this.getFrontLeftGrid(
+        const frontLeftGrid = this.getFrontLeftGrid(
             grid1.x,
             grid1.y,
             grid2.x,
@@ -492,7 +492,7 @@ class Maze {
 
             // 否則繼續判斷左前方的左前方
             // 此時左前方的左前方一定不會是圍牆
-            var frontFrontLeftGrid = this.getFrontLeftGrid(
+            const frontFrontLeftGrid = this.getFrontLeftGrid(
                 grid2.x,
                 grid2.y,
                 frontLeftGrid.x,
@@ -515,7 +515,7 @@ class Maze {
 
         // 獲取右前方的左前方的格子
         // 右前方一定存在有效格子
-        var frontRightGrid = this.getFrontRightGrid(
+        const frontRightGrid = this.getFrontRightGrid(
             grid1.x,
             grid1.y,
             grid2.x,
@@ -527,7 +527,7 @@ class Maze {
 
             // 否則繼續判斷右前方的左前方
             // 此時右前方的右前方一定不會是圍牆
-            var frontFrontRightGrid = this.getFrontRightGrid(
+            const frontFrontRightGrid = this.getFrontRightGrid(
                 grid2.x,
                 grid2.y,
                 frontRightGrid.x,
@@ -590,14 +590,14 @@ class Maze {
      * @memberof Maze
      */
     drawPath(grid, preGrid, pathColor, ctx) {
-        var x = grid.x,
+        const x = grid.x,
             y = grid.y,
             preX = preGrid.x,
             preY = preGrid.y;
 
         ctx = ctx || this;
 
-        var mazeGrids = ctx.mazeGrids;
+        const mazeGrids = ctx.mazeGrids;
 
         // 鏈接上一個格子
         mazeGrids[y][x].preGrid = {
@@ -614,8 +614,8 @@ class Maze {
         }
 
         // 獲取前面方向的格子
-        var frontGrid = ctx.getFrontGrid(preX, preY, x, y);
-        var fx = frontGrid.x,
+        const frontGrid = ctx.getFrontGrid(preX, preY, x, y);
+        const fx = frontGrid.x,
             fy = frontGrid.y;
 
         // 先判斷當前繪制的路是否有效：
@@ -639,7 +639,7 @@ class Maze {
         };
 
         // 獲取候選方向（第二格的）
-        var directions = ctx.getValidDirections(fx, fy);
+        let directions = ctx.getValidDirections(fx, fy);
 
         // 遞歸挖路結束
         if (directions.length === 0) return;
@@ -679,7 +679,7 @@ class Maze {
 
         if (x === this.entrance.x && y === this.entrance.y) return;
 
-        var preX = this.mazeGrids[y][x].preGrid.x,
+        const preX = this.mazeGrids[y][x].preGrid.x,
             preY = this.mazeGrids[y][x].preGrid.y;
 
         this.drawCorrectPath(preX, preY);
@@ -716,10 +716,10 @@ class Maze {
      * @memberof Maze
      */
     moveBall(x, y) {
-        var elBall = this.elBall;
+        const elBall = this.elBall;
 
         // 未移動時的坐標
-        var bx = this.ballX,
+        let bx = this.ballX,
             by = this.ballY;
 
         // x, y 為各自方向上的移動速度
@@ -730,7 +730,7 @@ class Maze {
         (bx += this.ballSpeedX), (by += this.ballSpeedY);
 
         // 把小球變換後的坐標限制在路內（防止穿牆）
-        var validPos = this.getBallValidPosition(bx, by);
+        const validPos = this.getBallValidPosition(bx, by);
 
         // 保存變換後的坐標
         this.ballX = validPos.x;
@@ -770,32 +770,32 @@ class Maze {
         // 小球四個角的坐標轉換為迷宮坐標，
         // 即除以單元格長度後去掉小數部分
         // 剛好接觸牆判斷為路
-        var leftTop = {
+        const leftTop = {
                 x: ~~(x / this.step),
                 y: ~~(y / this.step),
-            },
-            leftBottom = {
+            };
+        const leftBottom = {
                 x: ~~(x / this.step),
                 y: ~~((y + this.ballDia) / this.step),
-            },
-            rightTop = {
+            };
+        const rightTop = {
                 x: ~~((x + this.ballDia) / this.step),
                 y: ~~(y / this.step),
-            },
-            rightBottom = {
+            };
+        const rightBottom = {
                 x: ~~((x + this.ballDia) / this.step),
                 y: ~~((y + this.ballDia) / this.step),
             };
 
         // 判斷每個角對應的迷宮格子是否是路
         // 格子不存在就視作牆
-        var that = this;
+        const that = this;
 
         function isGridPath(grid) {
-            var x = grid.x,
+            const x = grid.x,
                 y = grid.y;
 
-            var isPath =
+            const isPath =
                 that.mazeGrids[y] &&
                 that.mazeGrids[y][x] &&
                 that.mazeGrids[y][x].isPath;
@@ -954,9 +954,9 @@ class Maze {
         evt.preventDefault();
 
         // 不同方向的加速度(減小步長以防止穿牆)
-        var step = 2;
+        const step = 2;
         // 每次移動小球的延時
-        var delay = 20;
+        const delay = 20;
 
         switch (evt.key) {
             case "w":
@@ -1064,7 +1064,7 @@ function startGame() {
 
 // 生成迷宮
 function genMaze(options) {
-    var _options = Object.assign(
+    const _options = Object.assign(
         {
             elMaze: elMaze,
             elBall: elBall,
@@ -1093,7 +1093,7 @@ function drawHintPath() {
     maze.drawCorrectPath(maze.exit.x, maze.exit.y);
 }
 
-var elMaze = document.querySelector("#maze-map"),
+const elMaze = document.querySelector("#maze-map"),
     elBall = document.querySelector("#maze-ball"),
     elMazeWrapper = document.querySelector(".maze"),
     elControl = document.querySelector(".control"),
@@ -1102,7 +1102,7 @@ var elMaze = document.querySelector("#maze-map"),
     elMazeSize = document.querySelector(".maze-size"),
     elGameHint = document.querySelector(".game-hint");
 
-var maze = genMaze();
+let maze = genMaze();
 
 // 監聽地圖尺寸調整
 elMazeSize.addEventListener("change", function () {
