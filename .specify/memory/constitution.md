@@ -1,50 +1,98 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+- Version change: 1.0.0 → 1.1.0
+- Modified principles: None
+- Added sections:
+  * IV. 繁體中文優先（新增核心原則）
+- Removed sections: None
+- Templates status:
+  * ✅ constitution.md updated
+  * ✅ spec-template.md - 驗證通過（模板框架保持英文，實際使用時填入繁體中文）
+  * ✅ plan-template.md - 驗證通過（模板框架保持英文，實際使用時填入繁體中文）
+  * ✅ tasks-template.md - 驗證通過（模板框架保持英文，實際使用時填入繁體中文）
+- Follow-up TODOs: 無
+- Version bump rationale: MINOR - 新增「繁體中文優先」核心原則，要求所有規格、計劃和使用者文件使用繁體中文撰寫
+-->
 
-## Core Principles
+# Maze Game 專案憲章
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+## 核心原則
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### I. 簡單至上（不要過度設計）
+- 保持程式碼簡單直觀，避免不必要的抽象和複雜度
+- 只實現當前需要的功能，不預先設計未來可能需要的功能（YAGNI）
+- 優先選擇簡單的解決方案，除非複雜度有明確的正當理由
+- 程式碼應該易於理解和維護
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+**理由**：這是一個小型 H5 遊戲專案，過度設計會增加維護成本而無實質益處。
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### II. 純前端專案
+- 無後端依賴，所有邏輯在瀏覽器中執行
+- 使用靜態檔案託管即可部署
+- 不引入建置工具（如 webpack、vite）除非有明確需求
+- 保持專案可直接在瀏覽器中開啟運行
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+**理由**：簡化部署流程，降低技術門檻，保持專案輕量。
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### III. 原生優先
+- 優先使用原生 JavaScript、HTML5 Canvas、CSS
+- 避免引入大型框架（React、Vue 等）
+- 僅在必要時引入輕量 UI 框架（如當前的 Materialize CSS）
+- 外部依賴必須有明確價值且不可輕易替代
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+**理由**：減少依賴，提高載入速度，保持程式碼可控性。
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+### IV. 繁體中文優先
+- 所有規格文件（specs）必須使用繁體中文（zh-TW）撰寫
+- 所有計劃文件（plans）必須使用繁體中文（zh-TW）撰寫
+- 所有使用者介面文字必須使用繁體中文（zh-TW）
+- 所有使用者文件（README、說明文件）必須使用繁體中文（zh-TW）
+- 程式碼註解優先使用繁體中文，技術術語可保留英文
+- 變數和函數命名使用英文（遵循 JavaScript 慣例）
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+**理由**：確保專案文件和使用者體驗的一致性，降低本地使用者的理解門檻。
 
-## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+## 程式碼品質
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+### 可讀性優先
+- 變數和函數命名清晰，能自我說明
+- 關鍵邏輯添加註解（如迷宮生成演算法、碰撞檢測）
+- 保持函數職責單一，避免超長函數
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+### 測試標準
+- 核心邏輯（迷宮生成、碰撞檢測、路徑尋找）需手動測試驗證
+- 跨瀏覽器相容性測試（桌面 + 移動端）
+- 重力感應器功能需在實際裝置測試
+- 不強制要求單元測試，除非程式碼複雜度提升
+
+## 開發規範
+
+### 修改原則
+- 修改前先理解現有實現
+- 保持向後相容，不破壞現有功能
+- 遵循專案現有的程式碼風格
+- 重大改動前先討論必要性
+
+### 文件要求
+- 保持 CLAUDE.md 更新，記錄關鍵實現細節
+- README.md 說明專案特性和使用方法
+- 程式碼註解說明複雜邏輯
+
+## 治理規則
+
+### 修訂流程
+- 憲章修訂需有明確理由（如專案方向變更、技術棧調整）
+- 修訂後更新版本號並記錄修改日期
+- 重大修改需確保與現有模板和文件同步
+
+### 版本規則
+- MAJOR: 核心原則變更（如放棄純前端、引入框架）
+- MINOR: 新增原則或章節
+- PATCH: 文字修正、澄清說明
+
+### 合規檢查
+- 所有程式碼修改需符合「簡單至上」原則
+- 引入新依賴需通過必要性審查
+- 複雜度提升需有明確文件說明理由
+
+**Version**: 1.1.0 | **Ratified**: 2025-11-14 | **Last Amended**: 2025-11-14
