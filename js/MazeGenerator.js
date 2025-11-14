@@ -159,13 +159,9 @@ class MazeGenerator {
      * @memberof MazeGenerator
      */
     getFrontGrid(x1, y1, x2, y2) {
-        const x = 2 * x2 - x1;
-        const y = 2 * y2 - y1;
-
-        // 判斷該格子是否存在
-        const isExist = !!this.mazeGrids[y] && !!this.mazeGrids[y][x];
-
-        return isExist ? this.mazeGrids[y][x] : null;
+        const coord = MazeUtils.calculateFrontGrid(x1, y1, x2, y2);
+        const isExist = MazeUtils.isGridExists(coord.x, coord.y, this.mazeGrids);
+        return isExist ? this.mazeGrids[coord.y][coord.x] : null;
     }
 
     /**
@@ -179,31 +175,9 @@ class MazeGenerator {
      * @memberof MazeGenerator
      */
     getFrontLeftGrid(x1, y1, x2, y2) {
-        // 先獲取前方格子
-        let x = 2 * x2 - x1;
-        let y = 2 * y2 - y1;
-
-        // 再判斷左前方
-        if (x2 - x1 === 0) {
-            if (y2 - y1 > 0) {
-                x += 1;
-            } else {
-                x -= 1;
-            }
-        }
-
-        if (y2 - y1 === 0) {
-            if (x2 - x1 > 0) {
-                y -= 1;
-            } else {
-                y += 1;
-            }
-        }
-
-        // 判斷該格子是否存在
-        const isExist = !!this.mazeGrids[y] && !!this.mazeGrids[y][x];
-
-        return isExist ? this.mazeGrids[y][x] : null;
+        const coord = MazeUtils.calculateFrontLeftGrid(x1, y1, x2, y2);
+        const isExist = MazeUtils.isGridExists(coord.x, coord.y, this.mazeGrids);
+        return isExist ? this.mazeGrids[coord.y][coord.x] : null;
     }
 
     /**
@@ -217,31 +191,9 @@ class MazeGenerator {
      * @memberof MazeGenerator
      */
     getFrontRightGrid(x1, y1, x2, y2) {
-        // 先獲取前方格子
-        let x = 2 * x2 - x1;
-        let y = 2 * y2 - y1;
-
-        // 再判斷右前方
-        if (x2 - x1 === 0) {
-            if (y2 - y1 > 0) {
-                x -= 1;
-            } else {
-                x += 1;
-            }
-        }
-
-        if (y2 - y1 === 0) {
-            if (x2 - x1 > 0) {
-                y += 1;
-            } else {
-                y -= 1;
-            }
-        }
-
-        // 判斷該格子是否存在
-        const isExist = !!this.mazeGrids[y] && !!this.mazeGrids[y][x];
-
-        return isExist ? this.mazeGrids[y][x] : null;
+        const coord = MazeUtils.calculateFrontRightGrid(x1, y1, x2, y2);
+        const isExist = MazeUtils.isGridExists(coord.x, coord.y, this.mazeGrids);
+        return isExist ? this.mazeGrids[coord.y][coord.x] : null;
     }
 
     /**
@@ -254,63 +206,14 @@ class MazeGenerator {
      */
     getValidDirections(x, y) {
         const mazeGrids = this.mazeGrids;
-        let directions = [];
+        const currentGrid = { x, y };
 
-        // 4 個方向
-        const top = {
-            x: x,
-            y: y - 1,
-        };
-        const bottom = {
-            x: x,
-            y: y + 1,
-        };
-        const left = {
-            x: x - 1,
-            y: y,
-        };
-        const right = {
-            x: x + 1,
-            y: y,
-        };
-
-        directions.push(top, bottom, left, right);
+        // 獲取四個方向
+        let directions = MazeUtils.getFourDirections(x, y);
 
         // 過濾掉無效方向
-        directions = directions.filter((item) => {
-            // 候選方向的 x, y 坐標
-            const _x = item.x;
-            const _y = item.y;
-
-            let isExist;
-            let isExit;
-            let isWall;
-            let isPath;
-            let isFrontExist;
-            let isFrontPath;
-
-            // 是出口直接返回
-            isExit = mazeGrids[_y][_x].isExit;
-
-            if (isExit) {
-                return true;
-            }
-
-            isExist = !!mazeGrids[_y] && !!mazeGrids[_y][_x];
-            isFrontExist = !!this.getFrontGrid(x, y, _x, _y);
-
-            // 格子不存在直接排除
-            if (!isExist || !isFrontExist) {
-                return false;
-            }
-
-            isWall = mazeGrids[_y][_x].isWall;
-            isPath = mazeGrids[_y][_x].isPath;
-            isFrontPath = this.getFrontGrid(x, y, _x, _y).isPath;
-
-            const isValidDirection = isExit || (!isWall && !isPath && !isFrontPath);
-
-            return isValidDirection;
+        directions = directions.filter((candidateGrid) => {
+            return MazeUtils.isValidDirection(candidateGrid, currentGrid, mazeGrids);
         });
 
         // 轉換為迷宮格子對象
@@ -331,66 +234,7 @@ class MazeGenerator {
      * @memberof MazeGenerator
      */
     getDirection(grid1, grid2, grid3) {
-        const directions = ["front", "left", "right"];
-
-        const x1 = grid1.x;
-        const y1 = grid1.y;
-        const x2 = grid2.x;
-        const y2 = grid2.y;
-        const x3 = grid3.x;
-        const y3 = grid3.y;
-
-        let isFront;
-        let isLeft;
-        let isRight;
-
-        isFront = x3 - x2 === x2 - x1 || y3 - y2 === y2 - y1;
-
-        if (y2 === y1) {
-            if (x2 > x1) {
-                if (x3 === x2 && y3 < y2) {
-                    isLeft = true;
-                }
-                if (x3 === x2 && y3 > y2) {
-                    isRight = true;
-                }
-            } else {
-                if (x3 === x2 && y3 > y2) {
-                    isLeft = true;
-                }
-                if (x3 === x2 && y3 < y2) {
-                    isRight = true;
-                }
-            }
-        }
-
-        if (x2 === x1) {
-            if (y2 > y1) {
-                if (y3 === y2 && x3 > x2) {
-                    isLeft = true;
-                }
-                if (y3 === y2 && x3 < x2) {
-                    isRight = true;
-                }
-            } else {
-                if (y3 === y2 && x3 < x2) {
-                    isLeft = true;
-                }
-                if (y3 === y2 && x3 > x2) {
-                    isRight = true;
-                }
-            }
-        }
-
-        if (isFront) {
-            return directions[0];
-        }
-        if (isLeft) {
-            return directions[1];
-        }
-        if (isRight) {
-            return directions[2];
-        }
+        return MazeUtils.getRelativeDirection(grid1, grid2, grid3);
     }
 
     /**
@@ -401,37 +245,11 @@ class MazeGenerator {
      * @memberof MazeGenerator
      */
     getRandomDirection(directions) {
-        const results = [];
-
-        // 打亂數組
-        directions.sort(() => 0.5 - Math.random());
-
-        // 根據遊戲難度返回候選方向
-        //   gameLevel = 0：一條
-        //   gameLevel = 1：兩條
-        //   gameLevel = 2：三條
-
-        // 多個候選方向可以出現的最大概率
-        const maxRatio = GAME_CONSTANTS.FORK_MAX_RATIO;
-
-        // 當前的隨機概率
-        const ratio = Math.random();
-
-        for (let i = 0; i <= this.gameLevel; i++) {
-            // 如果候選方向個數少於相應遊戲難度的，則直接中斷
-            if (!directions[i]) {
-                break;
-            }
-
-            // 如果當前概率大於最大概率，則只返回第一個候選方向
-            if (i > 0 && ratio > maxRatio) {
-                break;
-            }
-
-            results.push(directions[i]);
-        }
-
-        return results;
+        return MazeUtils.selectDirectionsByLevel(
+            directions,
+            this.gameLevel,
+            GAME_CONSTANTS.FORK_MAX_RATIO
+        );
     }
 
     /**

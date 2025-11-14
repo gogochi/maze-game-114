@@ -120,56 +120,37 @@ class BallController {
      */
     getBallValidPosition(x, y) {
         // 限制小球在迷宮範圍內
-        if (x <= 0) {
-            x = 0;
+        const bounds = MazeUtils.constrainToBounds(
+            x,
+            y,
+            this.ballDia,
+            this.width,
+            this.height,
+            this.step
+        );
+        
+        x = bounds.x;
+        y = bounds.y;
+        
+        if (bounds.needStopX) {
             this.ballSpeedX = 0;
         }
-        if (y <= 0) {
-            y = 0;
-            this.ballSpeedY = 0;
-        }
-
-        if (x >= this.width * this.step - this.ballDia) {
-            x = this.width * this.step - this.ballDia;
-            this.ballSpeedX = 0;
-        }
-
-        if (y >= this.height * this.step - this.ballDia) {
-            y = this.height * this.step - this.ballDia;
+        if (bounds.needStopY) {
             this.ballSpeedY = 0;
         }
 
         // 小球四個角的坐標轉換為迷宮坐標
-        const leftTop = {
-            x: ~~(x / this.step),
-            y: ~~(y / this.step),
-        };
-        const leftBottom = {
-            x: ~~(x / this.step),
-            y: ~~((y + this.ballDia) / this.step),
-        };
-        const rightTop = {
-            x: ~~((x + this.ballDia) / this.step),
-            y: ~~(y / this.step),
-        };
-        const rightBottom = {
-            x: ~~((x + this.ballDia) / this.step),
-            y: ~~((y + this.ballDia) / this.step),
-        };
+        const corners = MazeUtils.getBallCornerGrids(x, y, this.ballDia, this.step);
+        const leftTop = corners.leftTop;
+        const leftBottom = corners.leftBottom;
+        const rightTop = corners.rightTop;
+        const rightBottom = corners.rightBottom;
 
         // 判斷每個角對應的迷宮格子是否是路
         const that = this;
 
         function isGridPath(grid) {
-            const gridX = grid.x;
-            const gridY = grid.y;
-
-            const isPath =
-                that.mazeGrids[gridY] &&
-                that.mazeGrids[gridY][gridX] &&
-                that.mazeGrids[gridY][gridX].isPath;
-
-            return isPath;
+            return MazeUtils.isGridPath(grid.x, grid.y, that.mazeGrids);
         }
 
         // 小球穿牆的情況處理

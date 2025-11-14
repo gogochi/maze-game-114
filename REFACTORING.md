@@ -6,6 +6,32 @@
 
 ## 新的類別架構
 
+### 0. **MazeUtils** (`js/MazeUtils.js`) - 新增
+**職責：** 提供純函數工具方法
+
+**特點：**
+- 所有方法均為靜態純函數（無副作用）
+- 高度可測試和可重用
+- 獨立於具體實現
+
+**主要方法：**
+- `calculateFrontGrid(x1, y1, x2, y2)` - 計算前方格子坐標
+- `calculateFrontLeftGrid(x1, y1, x2, y2)` - 計算左前方格子坐標
+- `calculateFrontRightGrid(x1, y1, x2, y2)` - 計算右前方格子坐標
+- `isGridExists(x, y, mazeGrids)` - 檢查格子是否存在
+- `isGridPath(x, y, mazeGrids)` - 檢查格子是否為路徑
+- `isGridWall(x, y, mazeGrids)` - 檢查格子是否為圍牆
+- `isGridExit(x, y, mazeGrids)` - 檢查格子是否為出口
+- `isValidDirection(candidateGrid, currentGrid, mazeGrids)` - 判斷方向是否有效
+- `getFourDirections(x, y)` - 獲取四個基本方向
+- `getRelativeDirection(grid1, grid2, grid3)` - 判斷相對方位
+- `pixelToGrid(pixelX, pixelY, step)` - 像素坐標轉網格坐標
+- `gridToPixel(gridX, gridY, step)` - 網格坐標轉像素坐標
+- `getBallCornerGrids(ballX, ballY, ballDia, step)` - 計算小球四角網格坐標
+- `constrainToBounds(x, y, ballDia, width, height, step)` - 邊界限制
+- `shuffleArray(array)` - 打亂數組（Fisher-Yates 算法）
+- `selectDirectionsByLevel(directions, gameLevel, maxRatio)` - 根據難度選擇方向
+
 ### 1. **MazeGenerator** (`js/MazeGenerator.js`)
 **職責：** 負責迷宮生成算法
 
@@ -65,16 +91,23 @@
 ### 1. **單一職責**
 每個類別只負責一個明確的功能領域，易於理解和維護。
 
-### 2. **可測試性**
-各個類別可以獨立測試，不需要依賴完整的遊戲環境。
+### 2. **純函數設計**
+- `MazeUtils` 提供無副作用的純函數
+- 相同輸入保證相同輸出
+- 易於單元測試和調試
+- 可以安全並行執行
 
-### 3. **可擴展性**
+### 3. **可測試性**
+各個類別可以獨立測試，不需要依賴完整的遊戲環境。工具函數特別容易編寫單元測試。
+
+### 4. **可擴展性**
 - 想要更換渲染方式？只需修改 `MazeRenderer`
 - 想要改進迷宮生成算法？只需修改 `MazeGenerator`
 - 想要添加新的控制方式（如觸控）？只需擴展 `BallController`
 
 ### 4. **代碼重用**
 各個類別可以在其他項目中重用，例如：
+- `MazeUtils` 可用於任何需要迷宮計算的項目
 - `MazeGenerator` 可用於服務器端生成迷宮數據
 - `MazeRenderer` 可用於純渲染場景
 
@@ -84,6 +117,12 @@
 ## 類別依賴關係
 
 ```
+MazeUtils (純函數工具類)
+    ↑
+    ├── MazeGenerator (使用工具函數進行計算)
+    ├── BallController (使用工具函數進行碰撞檢測)
+    └── MazeRenderer (獨立)
+
 GameController (主控制器)
     ├── MazeGenerator (生成迷宮數據)
     ├── MazeRenderer (渲染視覺效果)
@@ -122,6 +161,7 @@ game.drawCorrectPath();
 
 ```
 js/
+├── MazeUtils.js        # 純函數工具類 (新增)
 ├── MazeGenerator.js    # 迷宮生成器
 ├── MazeRenderer.js     # 迷宮渲染器
 ├── BallController.js   # 小球控制器
@@ -129,6 +169,40 @@ js/
 ├── maze.js            # 主入口和配置
 └── maze.old.js        # 原始代碼備份
 ```
+
+## 純函數設計範例
+
+```javascript
+// ❌ 有副作用的方法
+getFrontGrid(x1, y1, x2, y2) {
+    const x = 2 * x2 - x1;
+    const y = 2 * y2 - y1;
+    const isExist = !!this.mazeGrids[y] && !!this.mazeGrids[y][x];
+    return isExist ? this.mazeGrids[y][x] : null;
+}
+
+// ✅ 純函數 + 組合使用
+static calculateFrontGrid(x1, y1, x2, y2) {
+    return {
+        x: 2 * x2 - x1,
+        y: 2 * y2 - y1
+    };
+}
+
+getFrontGrid(x1, y1, x2, y2) {
+    const coord = MazeUtils.calculateFrontGrid(x1, y1, x2, y2);
+    const isExist = MazeUtils.isGridExists(coord.x, coord.y, this.mazeGrids);
+    return isExist ? this.mazeGrids[coord.y][coord.x] : null;
+}
+```
+
+## 工具函數優勢
+
+1. **可單獨測試**: 不需要創建類實例
+2. **可重用**: 可在不同類別中使用
+3. **無狀態**: 不依賴外部變數
+4. **可組合**: 小函數組合成複雜邏輯
+5. **易於理解**: 輸入輸出明確
 
 ## 未來改進建議
 
