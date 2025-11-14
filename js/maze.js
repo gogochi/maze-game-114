@@ -719,7 +719,8 @@ class Maze {
         this.ballSpeedY = y;
 
         // 移動後的坐標
-        (ballX += this.ballSpeedX), (ballY += this.ballSpeedY);
+        ballX += this.ballSpeedX;
+        ballY += this.ballSpeedY;
 
         // 把小球變換後的坐標限制在路內（防止穿牆）
         const validPos = this.getBallValidPosition(ballX, ballY);
@@ -750,14 +751,24 @@ class Maze {
      */
     getBallValidPosition(x, y) {
         // 限制小球在迷宮範圍內
-        if (x <= 0) (x = 0), (this.ballSpeedX = 0);
-        if (y <= 0) (y = 0), (this.ballSpeedY = 0);
+        if (x <= 0) {
+            x = 0;
+            this.ballSpeedX = 0;
+        }
+        if (y <= 0) {
+            y = 0;
+            this.ballSpeedY = 0;
+        }
 
-        if (x >= this.width * this.step - this.ballDia)
-            (x = this.width * this.step - this.ballDia), (this.ballSpeedX = 0);
+        if (x >= this.width * this.step - this.ballDia) {
+            x = this.width * this.step - this.ballDia;
+            this.ballSpeedX = 0;
+        }
 
-        if (y >= this.height * this.step - this.ballDia)
-            (y = this.height * this.step - this.ballDia), (this.ballSpeedY = 0);
+        if (y >= this.height * this.step - this.ballDia) {
+            y = this.height * this.step - this.ballDia;
+            this.ballSpeedY = 0;
+        }
 
         // 小球四個角的坐標轉換為迷宮坐標，
         // 即除以單元格長度後去掉小數部分
@@ -809,10 +820,14 @@ class Maze {
             isGridPath(rightBottom)
         ) {
             // 向左穿牆
-            if (x - leftTop.x * this.step > y - leftTop.y * this.step)
-                (x = (leftTop.x + 1) * this.step), (this.ballSpeedX = 0);
+            if (x - leftTop.x * this.step > y - leftTop.y * this.step) {
+                x = (leftTop.x + 1) * this.step;
+                this.ballSpeedX = 0;
             // 向上穿牆
-            else (y = (leftTop.y + 1) * this.step), (this.ballSpeedY = 0);
+            } else {
+                y = (leftTop.y + 1) * this.step;
+                this.ballSpeedY = 0;
+            }
         }
         // 1.2. 左下角
         if (
@@ -825,12 +840,14 @@ class Maze {
             if (
                 (leftBottom.x + 1) * this.step - x <
                 y + this.ballDia - leftBottom.y * this.step
-            )
-                (x = (leftBottom.x + 1) * this.step), (this.ballSpeedX = 0);
+            ) {
+                x = (leftBottom.x + 1) * this.step;
+                this.ballSpeedX = 0;
             // 向下穿牆
-            else
-                (y = leftBottom.y * this.step - this.ballDia),
-                    (this.ballSpeedY = 0);
+            } else {
+                y = leftBottom.y * this.step - this.ballDia;
+                this.ballSpeedY = 0;
+            }
         }
         // 1.3. 右下角
         if (
@@ -843,13 +860,14 @@ class Maze {
             if (
                 y + this.ballDia - rightBottom.y * this.step >
                 x + this.ballDia - rightBottom.x * this.step
-            )
-                (x = rightBottom.x * this.step - this.ballDia),
-                    (this.ballSpeedX = 0);
+            ) {
+                x = rightBottom.x * this.step - this.ballDia;
+                this.ballSpeedX = 0;
             // 向下穿牆
-            else
-                (y = rightBottom.y * this.step - this.ballDia),
-                    (this.ballSpeedY = 0);
+            } else {
+                y = rightBottom.y * this.step - this.ballDia;
+                this.ballSpeedY = 0;
+            }
         }
         // 1.4. 右上角
         if (
@@ -862,27 +880,37 @@ class Maze {
             if (
                 (rightTop.y + 1) * this.step - y >
                 x + this.ballDia - rightTop.x * this.step
-            )
-                (x = rightTop.x * this.step - this.ballDia),
-                    (this.ballSpeedX = 0);
+            ) {
+                x = rightTop.x * this.step - this.ballDia;
+                this.ballSpeedX = 0;
             // 向上穿牆
-            else (y = (rightTop.y + 1) * this.step), (this.ballSpeedY = 0);
+            } else {
+                y = (rightTop.y + 1) * this.step;
+                this.ballSpeedY = 0;
+            }
         }
 
         // 2. 同側兩個角穿牆
         // 2.1. 左側
-        if (!isGridPath(leftTop) && !isGridPath(leftBottom))
-            (x = (leftTop.x + 1) * this.step), (this.ballSpeedX = 0);
+        if (!isGridPath(leftTop) && !isGridPath(leftBottom)) {
+            x = (leftTop.x + 1) * this.step;
+            this.ballSpeedX = 0;
+        }
         // 2.2. 下側
-        if (!isGridPath(leftBottom) && !isGridPath(rightBottom))
-            (y = leftBottom.y * this.step - this.ballDia),
-                (this.ballSpeedY = 0);
+        if (!isGridPath(leftBottom) && !isGridPath(rightBottom)) {
+            y = leftBottom.y * this.step - this.ballDia;
+            this.ballSpeedY = 0;
+        }
         // 2.3. 右側
-        if (!isGridPath(rightTop) && !isGridPath(rightBottom))
-            (x = rightTop.x * this.step - this.ballDia), (this.ballSpeedX = 0);
+        if (!isGridPath(rightTop) && !isGridPath(rightBottom)) {
+            x = rightTop.x * this.step - this.ballDia;
+            this.ballSpeedX = 0;
+        }
         // 2.4. 上側
-        if (!isGridPath(leftTop) && !isGridPath(rightTop))
-            (y = (leftTop.y + 1) * this.step), (this.ballSpeedY = 0);
+        if (!isGridPath(leftTop) && !isGridPath(rightTop)) {
+            y = (leftTop.y + 1) * this.step;
+            this.ballSpeedY = 0;
+        }
 
         return { x, y };
     }
@@ -945,10 +973,10 @@ class Maze {
         // 阻止默認移動行為
         evt.preventDefault();
 
-        // 不同方向的加速度(減小步長以防止穿牆)
-        const step = 2;
+        // 不同方向的移動速度
+        const step = 4;
         // 每次移動小球的延時
-        const delay = 20;
+        const delay = 15;
 
         switch (evt.key) {
             case "w":
