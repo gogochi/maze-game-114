@@ -32,12 +32,9 @@ class Maze {
         this.gameLevel = options.gameLevel || 0;
         this.keyDownHandler = this.keyDownHandler.bind(this);
         this.keyUpHandler = this.keyUpHandler.bind(this);
-        this.motionHandler = this.motionHandler.bind(this);
 
         this.ballSpeedX = 0; // 小球 x 軸方向的移動速度；
         this.ballSpeedY = 0; // 小球 y 軸方向的移動速度；
-        this.G = 9.8; // 重力加速度
-        this.time = null; // 時間戳，用於設置重力加速度
         this.curKey = ''; // 當前按鍵控制的方向 'up' | 'left' | 'right' | 'down'
         this.int = null; // 按鍵後觸發的 setInterval 的返回值
 
@@ -89,7 +86,6 @@ class Maze {
         // 移除移動操作監聽
         window.removeEventListener('keydown', this.keyDownHandler);
         window.removeEventListener('keyup', this.keyUpHandler);
-        window.removeEventListener('devicemotion', this.motionHandler);
 
         // 繪畫初始迷宮，包括圍牆，出入口，
         // 並初始化每個單元格的信息
@@ -715,68 +711,20 @@ class Maze {
     /**
      * 實現移動控制小球
      *
-     * @param {number}  x      - x 軸方向的重力加速度比率，10 >= x >= -10
-     *                         - 值的絕對值越大，越接近重力加速度
-     * @param {number}  y      - y 軸方向的重力加速度比率，10 >= y >= -10
-     *                         - 值的絕對值越大，越接近重力加速度
-     * @param {boolean} useAcc - 是否使用重力加速度移動
+     * @param {number}  x - x 軸方向的移動速度
+     * @param {number}  y - y 軸方向的移動速度
      * @memberof Maze
      */
-    moveBall(x, y, useAcc) {
+    moveBall(x, y) {
         var elBall = this.elBall;
 
         // 未移動時的坐標
         var bx = this.ballX,
             by = this.ballY;
 
-        if (useAcc) {
-            // 應用重力加速度：
-            // 每秒速度增加量等於重力加速度；
-            // 加速度的大小與傾斜角度（近似為 x，y 的值）成正比；
-            // 時間戳單位為 1/1000 秒，
-            // 重力加速度則為 G / 1000；
-
-            // 不同軸方向換算後的加速度
-            var gX = (this.G / 1000) * (x / 10),
-                gY = (this.G / 1000) * (y / 10);
-
-            // 當前時間戳
-            var time = Date.now();
-
-            // 每次調用根據時間戳確定要移動的距離
-            if (!this.time) {
-                this.time = time;
-            } else {
-                // 兩次調用的時間間隔
-                var timeDur = time - this.time;
-
-                // 時間間隔閾值，超過這個值判斷為小球停止後重新移動，
-                // 此時速度需要置 0
-                var timeout = 50;
-
-                // 根據重力加速度增加速度
-                if (!x || timeDur > timeout) {
-                    // 如果該方向沒有移動，則速度置為 0
-                    this.ballSpeedX = 0;
-                } else {
-                    // 否則速度加上一個加速度值
-                    this.ballSpeedX += timeDur * gX;
-                }
-
-                if (!y || timeDur > timeout) {
-                    this.ballSpeedY = 0;
-                } else {
-                    this.ballSpeedY += timeDur * gY;
-                }
-            }
-
-            this.time = time;
-        } else {
-            // 不使用加速度移動
-            // x, y 判斷為各自方向上的移動速度
-            this.ballSpeedX = x;
-            this.ballSpeedY = y;
-        }
+        // x, y 為各自方向上的移動速度
+        this.ballSpeedX = x;
+        this.ballSpeedY = y;
 
         // 移動後的坐標
         (bx += this.ballSpeedX), (by += this.ballSpeedY);
@@ -956,9 +904,6 @@ class Maze {
         // 監控鍵盤移動事件
         window.addEventListener('keydown', this.keyDownHandler);
         window.addEventListener('keyup', this.keyUpHandler);
-
-        // 監控移動端重力感應器事件
-        window.addEventListener('devicemotion', this.motionHandler);
     }
 
     /**
@@ -970,7 +915,6 @@ class Maze {
         // 停止控制小球
         window.removeEventListener('keydown', this.keyDownHandler);
         window.removeEventListener('keyup', this.keyUpHandler);
-        window.removeEventListener('devicemotion', this.motionHandler);
         this.curKey = '';
         window.clearInterval(this.int);
 
@@ -994,22 +938,6 @@ class Maze {
                 displayLength: 3000,
             });
         }
-    }
-
-    /**
-     * 處理移動端重力感應移動事件的回調
-     *
-     * @param {Event} evt - 傳入的事件對象
-     */
-    motionHandler(evt) {
-        var acc = evt.accelerationIncludingGravity;
-
-        // 右翻 x 為負，後翻 y 為正
-        // 不同方向的重力加速度比率，範圍 [-10, 10]
-        var aX = -acc.x,
-            aY = acc.y;
-
-        this.moveBall(aX, aY, true);
     }
 
     /**
@@ -1041,8 +969,7 @@ class Maze {
                     this.moveBall.bind(this),
                     delay,
                     0,
-                    -step,
-                    false
+                    -step
                 );
                 break;
 
@@ -1056,8 +983,7 @@ class Maze {
                     this.moveBall.bind(this),
                     delay,
                     -step,
-                    0,
-                    false
+                    0
                 );
                 break;
 
@@ -1071,8 +997,7 @@ class Maze {
                     this.moveBall.bind(this),
                     delay,
                     0,
-                    step,
-                    false
+                    step
                 );
                 break;
 
@@ -1086,8 +1011,7 @@ class Maze {
                     this.moveBall.bind(this),
                     delay,
                     step,
-                    0,
-                    false
+                    0
                 );
                 break;
 
@@ -1123,69 +1047,13 @@ function startGame() {
     elStartGame.classList.add("disabled");
     elStartGame.classList.remove("pulse");
 
-    // 判斷設備是否支持重力傳感器
-    var accelerometer = null;
-    var detectError = false;
-    try {
-        accelerometer = new Accelerometer({ referenceFrame: 'device' });
-        accelerometer.addEventListener('error', event => {
-            // Handle runtime errors.
-            if (event.error.name === 'NotAllowedError') {
-                // Branch to code for requesting permission.
-            } else if (event.error.name === 'NotReadableError' ) {
-                // alert('錯誤：未能檢測到傳感器！');
-                detectError = true;
-            }
-        });
-        accelerometer.addEventListener('reading', () => reloadOnShake(accelerometer));
-        accelerometer.start();
-    } catch (error) {
-        // Handle construction errors.
-        if (error.name === 'SecurityError') {
-            // See the note above about feature policy.
-            // alert('錯誤：傳感器構造被功能策略阻止！');
-            detectError = true;
-        } else if (error.name === 'ReferenceError') {
-            // alert('錯誤：用戶代理不支持傳感器！');
-            detectError = true;
-        } else {
-            throw error;
-        }
-    }
-
-    if (typeof DeviceMotionEvent === "undefined") {
-        M.toast({
-            html: `<span class="red-text">
-                     該瀏覽器不支持重力感應器！<br>
-                     <span class="red-text text-lighten-3">
-                       請使用方向鍵移動小球
-                     </span>
-                   </span>
-                   `,
-            displayLength: 2000,
-        });
-    } else {
-        if (detectError) {
-            M.toast({
-                html: `<span class="teal-text text-accent-2">
-                         遊戲開始！<br>
-                         當前設備可能<span class="red-text text-lighten-3"
-                         >不支持</span>重力感應器或<span class="red-text text-lighten-3"
-                         >檢測失敗</span>，<br>
-                         請嘗試晃動手機，或者使用方向鍵移動小球<br>
-                       </span>`,
-                displayLength: 5000,
-            });
-        } else {
-            M.toast({
-                html: `<span class="teal-text text-accent-2">
-                         遊戲開始！<br>
-                         請晃動手機，或使用方向鍵移動小球
-                       </span>`,
-                displayLength: 2000,
-            });
-        }
-    }
+    M.toast({
+        html: `<span class="teal-text text-accent-2">
+                 遊戲開始！<br>
+                 請使用方向鍵移動小球
+               </span>`,
+        displayLength: 2000,
+    });
 
     // 一定時間後顯示提示按鈕
     setTimeout(() => {
