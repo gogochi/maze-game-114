@@ -42,6 +42,9 @@ class BallController {
         // 移動計時器
         this.moveInterval = null;
 
+        // 是否已經到達出口
+        this.hasReachedExit = false;
+
         // 綁定事件處理器
         this.keyDownHandler = this.keyDownHandler.bind(this);
         this.keyUpHandler = this.keyUpHandler.bind(this);
@@ -67,6 +70,7 @@ class BallController {
      */
     updateMazeGrids(mazeGrids) {
         this.mazeGrids = mazeGrids;
+        this.hasReachedExit = false;
     }
 
     /**
@@ -98,11 +102,13 @@ class BallController {
         this.ballX = validPos.x;
         this.ballY = validPos.y;
 
-        // 判斷是否到達出口
+        // 判斷是否到達出口（只觸發一次）
         if (
+            !this.hasReachedExit &&
             this.ballX >= this.exit.x * this.step &&
             this.ballY >= this.exit.y * this.step
         ) {
+            this.hasReachedExit = true;
             onArriveExit();
         }
 
