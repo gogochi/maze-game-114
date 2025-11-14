@@ -25,8 +25,8 @@ class Maze {
     constructor(options) {
         this.elMaze = options.elMaze;
         this.elBall = options.elBall;
-        this.w = options.width || 31;
-        this.h = options.height || 31;
+        this.width = options.width || 31;
+        this.height = options.height || 31;
         this.step = options.step || 10;
         this.ballDia = options.ballDia || 6;
         this.gameLevel = options.gameLevel || 0;
@@ -36,14 +36,14 @@ class Maze {
         this.ballSpeedX = 0; // 小球 x 軸方向的移動速度；
         this.ballSpeedY = 0; // 小球 y 軸方向的移動速度；
         this.curKey = ''; // 當前按鍵控制的方向 'up' | 'left' | 'right' | 'down'
-        this.int = null; // 按鍵後觸發的 setInterval 的返回值
+        this.moveInterval = null; // 按鍵後觸發的 setInterval 的返回值
 
         // 遊戲難度等級：簡單 -> 困難 -> 複雜
         //   0 - 簡單：隨機返回一個候選方向；
         //   1 - 複雜：隨機返回兩個候選方向；（難度最大）
         //   2 - 困難：隨機返回三個候選方向；（全部）
 
-        this.cvsCtx = this.elMaze.getContext("2d");
+        this.canvasContext = this.elMaze.getContext("2d");
 
         // 包含所有格子的二維數組
         this.mazeGrids = [];
@@ -56,8 +56,8 @@ class Maze {
 
         // 出口位置
         this.exit = {
-            x: this.w - 2,
-            y: this.h - 1,
+            x: this.width - 2,
+            y: this.height - 1,
         };
 
         this.initMaze();
@@ -70,8 +70,8 @@ class Maze {
      */
     initMaze() {
         const mazeGrids = this.mazeGrids,
-            w = this.w,
-            h = this.h,
+            width = this.width,
+            height = this.height,
             step = this.step,
             elMaze = this.elMaze,
             elBall = this.elBall,
@@ -80,8 +80,8 @@ class Maze {
             exit = this.exit;
 
         // 調整 canvas 元素尺寸
-        elMaze.width = w * step;
-        elMaze.height = h * step;
+        elMaze.width = width * step;
+        elMaze.height = height * step;
 
         // 移除移動操作監聽
         window.removeEventListener('keydown', this.keyDownHandler);
@@ -89,17 +89,17 @@ class Maze {
 
         // 繪畫初始迷宮，包括圍牆，出入口，
         // 並初始化每個單元格的信息
-        for (let y = 0; y < h; y++) {
+        for (let y = 0; y < height; y++) {
             mazeGrids[y] = [];
 
-            for (let x = 0; x < w; x++) {
+            for (let x = 0; x < width; x++) {
                 // 每個單元格的信息，包括坐標，是否為牆，是否為路
                 mazeGrids[y][x] = {
                     // 格子坐標
                     x: x,
                     y: y,
                     // 判斷是否是圍牆
-                    isWall: x === 0 || y === 0 || x === w - 1 || y === h - 1,
+                    isWall: x === 0 || y === 0 || x === width - 1 || y === height - 1,
                     // 是否為入口
                     isEntrance: x === entrance.x && y === entrance.y,
                     // 是否為出口
@@ -134,10 +134,10 @@ class Maze {
      * @memberof Maze
      */
     fillGrid(x, y, color) {
-        const ctx = this.cvsCtx;
+        const canvasContext = this.canvasContext;
 
-        ctx.fillStyle = color;
-        ctx.fillRect(x * this.step, y * this.step, this.step, this.step);
+        canvasContext.fillStyle = color;
+        canvasContext.fillRect(x * this.step, y * this.step, this.step, this.step);
     }
 
     /**
@@ -615,31 +615,31 @@ class Maze {
 
         // 獲取前面方向的格子
         const frontGrid = ctx.getFrontGrid(preX, preY, x, y);
-        const fx = frontGrid.x,
-            fy = frontGrid.y;
+        const frontX = frontGrid.x,
+            frontY = frontGrid.y;
 
         // 先判斷當前繪制的路是否有效：
         //   當前格子不是路；
         //   當前格子前面不是路；
         // 無效直接返回
-        if (mazeGrids[y][x].isPath || mazeGrids[fy][fx].isPath) return;
+        if (mazeGrids[y][x].isPath || mazeGrids[frontY][frontX].isPath) return;
 
         // 繪制路（第一格）
         ctx.fillGrid(x, y, pathColor);
         mazeGrids[y][x].isPath = true;
 
         // 畫同方向第二格路
-        ctx.fillGrid(fx, fy, pathColor);
-        mazeGrids[fy][fx].isPath = true;
+        ctx.fillGrid(frontX, frontY, pathColor);
+        mazeGrids[frontY][frontX].isPath = true;
 
         // 第二格鏈接到第一格
-        mazeGrids[fy][fx].preGrid = {
+        mazeGrids[frontY][frontX].preGrid = {
             x: x,
             y: y,
         };
 
         // 獲取候選方向（第二格的）
-        let directions = ctx.getValidDirections(fx, fy);
+        let directions = ctx.getValidDirections(frontX, frontY);
 
         // 遞歸挖路結束
         if (directions.length === 0) return;
@@ -654,7 +654,7 @@ class Maze {
                 ctx.drawPath,
                 0,
                 directions[i],
-                mazeGrids[fy][fx],
+                mazeGrids[frontY][frontX],
                 pathColor,
                 ctx
             );
@@ -719,18 +719,18 @@ class Maze {
         const elBall = this.elBall;
 
         // 未移動時的坐標
-        let bx = this.ballX,
-            by = this.ballY;
+        let ballX = this.ballX,
+            ballY = this.ballY;
 
         // x, y 為各自方向上的移動速度
         this.ballSpeedX = x;
         this.ballSpeedY = y;
 
         // 移動後的坐標
-        (bx += this.ballSpeedX), (by += this.ballSpeedY);
+        (ballX += this.ballSpeedX), (ballY += this.ballSpeedY);
 
         // 把小球變換後的坐標限制在路內（防止穿牆）
-        const validPos = this.getBallValidPosition(bx, by);
+        const validPos = this.getBallValidPosition(ballX, ballY);
 
         // 保存變換後的坐標
         this.ballX = validPos.x;
@@ -761,11 +761,11 @@ class Maze {
         if (x <= 0) (x = 0), (this.ballSpeedX = 0);
         if (y <= 0) (y = 0), (this.ballSpeedY = 0);
 
-        if (x >= this.w * this.step - this.ballDia)
-            (x = this.w * this.step - this.ballDia), (this.ballSpeedX = 0);
+        if (x >= this.width * this.step - this.ballDia)
+            (x = this.width * this.step - this.ballDia), (this.ballSpeedX = 0);
 
-        if (y >= this.h * this.step - this.ballDia)
-            (y = this.h * this.step - this.ballDia), (this.ballSpeedY = 0);
+        if (y >= this.height * this.step - this.ballDia)
+            (y = this.height * this.step - this.ballDia), (this.ballSpeedY = 0);
 
         // 小球四個角的坐標轉換為迷宮坐標，
         // 即除以單元格長度後去掉小數部分
@@ -916,10 +916,10 @@ class Maze {
         window.removeEventListener('keydown', this.keyDownHandler);
         window.removeEventListener('keyup', this.keyUpHandler);
         this.curKey = '';
-        window.clearInterval(this.int);
+        window.clearInterval(this.moveInterval);
 
         // 信息提示
-        if (this.w === 101 && !this.useHint) {
+        if (this.width === 101 && !this.useHint) {
             // 最大地圖無提示通關
             M.toast({
                 html: `<span class="orange-text text-accent-4">
@@ -963,9 +963,9 @@ class Maze {
             case "ArrowUp":
                 if (this.curKey === 'up') break;
 
-                window.clearInterval(this.int);
+                window.clearInterval(this.moveInterval);
                 this.curKey = 'up';
-                this.int = window.setInterval(
+                this.moveInterval = window.setInterval(
                     this.moveBall.bind(this),
                     delay,
                     0,
@@ -977,9 +977,9 @@ class Maze {
             case "ArrowLeft":
                 if (this.curKey === 'left') break;
 
-                window.clearInterval(this.int);
+                window.clearInterval(this.moveInterval);
                 this.curKey = 'left';
-                this.int = window.setInterval(
+                this.moveInterval = window.setInterval(
                     this.moveBall.bind(this),
                     delay,
                     -step,
@@ -991,9 +991,9 @@ class Maze {
             case "ArrowDown":
                 if (this.curKey === 'down') break;
 
-                window.clearInterval(this.int);
+                window.clearInterval(this.moveInterval);
                 this.curKey = 'down';
-                this.int = window.setInterval(
+                this.moveInterval = window.setInterval(
                     this.moveBall.bind(this),
                     delay,
                     0,
@@ -1005,9 +1005,9 @@ class Maze {
             case "ArrowRight":
                 if (this.curKey === 'right') break;
 
-                window.clearInterval(this.int);
+                window.clearInterval(this.moveInterval);
                 this.curKey = 'right';
-                this.int = window.setInterval(
+                this.moveInterval = window.setInterval(
                     this.moveBall.bind(this),
                     delay,
                     step,
@@ -1024,7 +1024,7 @@ class Maze {
     keyUpHandler(evt) {
         evt.preventDefault();
         this.curKey = '';
-        window.clearInterval(this.int);
+        window.clearInterval(this.moveInterval);
     }
 }
 
@@ -1112,8 +1112,8 @@ elMazeSize.addEventListener("change", function () {
         gameLevel: +elGameLevel.value,
     });
 
-    elMazeWrapper.style.width = maze.w * maze.step + "px";
-    elMazeWrapper.style.zoom = elControl.clientWidth / (maze.w * maze.step);
+    elMazeWrapper.style.width = maze.width * maze.step + "px";
+    elMazeWrapper.style.zoom = elControl.clientWidth / (maze.width * maze.step);
 });
 
 // 監聽遊戲難度調整
@@ -1126,5 +1126,5 @@ elGameLevel.addEventListener("change", function () {
 });
 
 // 縮放迷宮地圖以適應頁面
-elMazeWrapper.style.width = maze.w * maze.step + "px";
-elMazeWrapper.style.zoom = elControl.clientWidth / (maze.w * maze.step);
+elMazeWrapper.style.width = maze.width * maze.step + "px";
+elMazeWrapper.style.zoom = elControl.clientWidth / (maze.width * maze.step);
