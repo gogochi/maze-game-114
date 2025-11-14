@@ -772,252 +772,6 @@ class Maze {
     }
 
     /**
-     * 計算小球四個角的迷宮坐標
-     *
-     * @param   {number} x - 小球 x 坐標
-     * @param   {number} y - 小球 y 坐標
-     * @returns {object}   - 包含四個角坐標的物件
-     * @memberof Maze
-     */
-    calculateBallCorners(x, y) {
-        return {
-            leftTop: {
-                x: ~~(x / this.step),
-                y: ~~(y / this.step),
-            },
-            leftBottom: {
-                x: ~~(x / this.step),
-                y: ~~((y + this.ballDia) / this.step),
-            },
-            rightTop: {
-                x: ~~((x + this.ballDia) / this.step),
-                y: ~~(y / this.step),
-            },
-            rightBottom: {
-                x: ~~((x + this.ballDia) / this.step),
-                y: ~~((y + this.ballDia) / this.step),
-            },
-        };
-    }
-
-    /**
-     * 檢查並修正邊界碰撞
-     *
-     * @param   {number} x - 小球 x 坐標
-     * @param   {number} y - 小球 y 坐標
-     * @returns {object}   - 修正後的坐標
-     * @memberof Maze
-     */
-    checkBoundsCollision(x, y) {
-        let newX = x;
-        let newY = y;
-
-        if (newX <= 0) {
-            newX = 0;
-            this.ballSpeedX = 0;
-        }
-        if (newY <= 0) {
-            newY = 0;
-            this.ballSpeedY = 0;
-        }
-
-        if (newX >= this.width * this.step - this.ballDia) {
-            newX = this.width * this.step - this.ballDia;
-            this.ballSpeedX = 0;
-        }
-
-        if (newY >= this.height * this.step - this.ballDia) {
-            newY = this.height * this.step - this.ballDia;
-            this.ballSpeedY = 0;
-        }
-
-        return { x: newX, y: newY };
-    }
-
-    /**
-     * 檢查格子是否是路徑
-     *
-     * @param   {object} grid - 格子坐標 {x, y}
-     * @returns {boolean}     - 是否是路徑
-     * @memberof Maze
-     */
-    isGridPath(grid) {
-        const { x, y } = grid;
-        return (
-            this.mazeGrids[y] &&
-            this.mazeGrids[y][x] &&
-            this.mazeGrids[y][x].isPath
-        );
-    }
-
-    /**
-     * 檢查並處理單個角穿牆的情況
-     *
-     * @param   {object} corners - 四個角的坐標
-     * @param   {number} x       - 小球 x 坐標
-     * @param   {number} y       - 小球 y 坐標
-     * @returns {object}         - 修正後的坐標，如果沒有碰撞返回 null
-     * @memberof Maze
-     */
-    checkSingleCornerCollision(corners, x, y) {
-        const { leftTop, leftBottom, rightTop, rightBottom } = corners;
-
-        // 1.1. 左上角穿牆
-        if (
-            !this.isGridPath(leftTop) &&
-            this.isGridPath(leftBottom) &&
-            this.isGridPath(rightTop) &&
-            this.isGridPath(rightBottom)
-        ) {
-            // 向左穿牆
-            if (x - leftTop.x * this.step > y - leftTop.y * this.step) {
-                return {
-                    x: (leftTop.x + 1) * this.step,
-                    y,
-                    resetX: true,
-                };
-            }
-            // 向上穿牆
-            return {
-                x,
-                y: (leftTop.y + 1) * this.step,
-                resetY: true,
-            };
-        }
-
-        // 1.2. 左下角穿牆
-        if (
-            !this.isGridPath(leftBottom) &&
-            this.isGridPath(leftTop) &&
-            this.isGridPath(rightBottom) &&
-            this.isGridPath(rightTop)
-        ) {
-            // 向左穿牆
-            if (
-                (leftBottom.x + 1) * this.step - x <
-                y + this.ballDia - leftBottom.y * this.step
-            ) {
-                return {
-                    x: (leftBottom.x + 1) * this.step,
-                    y,
-                    resetX: true,
-                };
-            }
-            // 向下穿牆
-            return {
-                x,
-                y: leftBottom.y * this.step - this.ballDia,
-                resetY: true,
-            };
-        }
-
-        // 1.3. 右下角穿牆
-        if (
-            !this.isGridPath(rightBottom) &&
-            this.isGridPath(rightTop) &&
-            this.isGridPath(leftBottom) &&
-            this.isGridPath(leftTop)
-        ) {
-            // 向右穿牆
-            if (
-                y + this.ballDia - rightBottom.y * this.step >
-                x + this.ballDia - rightBottom.x * this.step
-            ) {
-                return {
-                    x: rightBottom.x * this.step - this.ballDia,
-                    y,
-                    resetX: true,
-                };
-            }
-            // 向下穿牆
-            return {
-                x,
-                y: rightBottom.y * this.step - this.ballDia,
-                resetY: true,
-            };
-        }
-
-        // 1.4. 右上角穿牆
-        if (
-            !this.isGridPath(rightTop) &&
-            this.isGridPath(rightBottom) &&
-            this.isGridPath(leftTop) &&
-            this.isGridPath(leftBottom)
-        ) {
-            // 向右穿牆
-            if (
-                (rightTop.y + 1) * this.step - y >
-                x + this.ballDia - rightTop.x * this.step
-            ) {
-                return {
-                    x: rightTop.x * this.step - this.ballDia,
-                    y,
-                    resetX: true,
-                };
-            }
-            // 向上穿牆
-            return {
-                x,
-                y: (rightTop.y + 1) * this.step,
-                resetY: true,
-            };
-        }
-
-        return null;
-    }
-
-    /**
-     * 檢查並處理同側兩個角穿牆的情況
-     *
-     * @param   {object} corners - 四個角的坐標
-     * @param   {number} x       - 小球 x 坐標
-     * @param   {number} y       - 小球 y 坐標
-     * @returns {object}         - 修正後的坐標，如果沒有碰撞返回 null
-     * @memberof Maze
-     */
-    checkDoubleCornerCollision(corners, x, y) {
-        const { leftTop, leftBottom, rightTop, rightBottom } = corners;
-
-        // 2.1. 左側
-        if (!this.isGridPath(leftTop) && !this.isGridPath(leftBottom)) {
-            return {
-                x: (leftTop.x + 1) * this.step,
-                y,
-                resetX: true,
-            };
-        }
-
-        // 2.2. 下側
-        if (!this.isGridPath(leftBottom) && !this.isGridPath(rightBottom)) {
-            return {
-                x,
-                y: leftBottom.y * this.step - this.ballDia,
-                resetY: true,
-            };
-        }
-
-        // 2.3. 右側
-        if (!this.isGridPath(rightTop) && !this.isGridPath(rightBottom)) {
-            return {
-                x: rightTop.x * this.step - this.ballDia,
-                y,
-                resetX: true,
-            };
-        }
-
-        // 2.4. 上側
-        if (!this.isGridPath(leftTop) && !this.isGridPath(rightTop)) {
-            return {
-                x,
-                y: (leftTop.y + 1) * this.step,
-                resetY: true,
-            };
-        }
-
-        return null;
-    }
-
-    /**
      * 限制小球移動範圍，返回限制後的有效坐標
      *
      * @param   {number} x - 變換後的小球 x 坐標
@@ -1026,42 +780,169 @@ class Maze {
      * @memberof Maze
      */
     getBallValidPosition(x, y) {
-        // 1. 檢查邊界碰撞
-        const boundsResult = this.checkBoundsCollision(x, y);
-        let newX = boundsResult.x;
-        let newY = boundsResult.y;
-
-        // 2. 計算小球四個角的迷宮坐標
-        const corners = this.calculateBallCorners(newX, newY);
-
-        // 3. 檢查單個角穿牆（優先處理，因為更精確）
-        const singleCornerResult = this.checkSingleCornerCollision(corners, newX, newY);
-        if (singleCornerResult) {
-            newX = singleCornerResult.x;
-            newY = singleCornerResult.y;
-            if (singleCornerResult.resetX) {
-                this.ballSpeedX = 0;
-            }
-            if (singleCornerResult.resetY) {
-                this.ballSpeedY = 0;
-            }
-            return { x: newX, y: newY };
+        // 限制小球在迷宮範圍內
+        if (x <= 0) {
+            x = 0;
+            this.ballSpeedX = 0;
+        }
+        if (y <= 0) {
+            y = 0;
+            this.ballSpeedY = 0;
         }
 
-        // 4. 檢查同側兩個角穿牆
-        const doubleCornerResult = this.checkDoubleCornerCollision(corners, newX, newY);
-        if (doubleCornerResult) {
-            newX = doubleCornerResult.x;
-            newY = doubleCornerResult.y;
-            if (doubleCornerResult.resetX) {
+        if (x >= this.width * this.step - this.ballDia) {
+            x = this.width * this.step - this.ballDia;
+            this.ballSpeedX = 0;
+        }
+
+        if (y >= this.height * this.step - this.ballDia) {
+            y = this.height * this.step - this.ballDia;
+            this.ballSpeedY = 0;
+        }
+
+        // 小球四個角的坐標轉換為迷宮坐標，
+        // 即除以單元格長度後去掉小數部分
+        // 剛好接觸牆判斷為路
+        const leftTop = {
+                x: ~~(x / this.step),
+                y: ~~(y / this.step),
+            };
+        const leftBottom = {
+                x: ~~(x / this.step),
+                y: ~~((y + this.ballDia) / this.step),
+            };
+        const rightTop = {
+                x: ~~((x + this.ballDia) / this.step),
+                y: ~~(y / this.step),
+            };
+        const rightBottom = {
+                x: ~~((x + this.ballDia) / this.step),
+                y: ~~((y + this.ballDia) / this.step),
+            };
+
+        // 判斷每個角對應的迷宮格子是否是路
+        // 格子不存在就視作牆
+        const that = this;
+
+        function isGridPath(grid) {
+            const x = grid.x,
+                y = grid.y;
+
+            const isPath =
+                that.mazeGrids[y] &&
+                that.mazeGrids[y][x] &&
+                that.mazeGrids[y][x].isPath;
+
+            return isPath;
+        }
+
+        // 小球穿牆的情況：
+        //   1. 只有一個角穿牆，需要考慮移動方向；
+        //   2. 只有兩個角穿牆，一定在同一側；
+        //   3. 三個角同時穿牆（暫時不考慮）；
+
+        // 1. 一個角穿牆，向坐標值更大的一個軸方向移動
+        // 1.1. 左上角
+        if (
+            !isGridPath(leftTop) &&
+            isGridPath(leftBottom) &&
+            isGridPath(rightTop) &&
+            isGridPath(rightBottom)
+        ) {
+            // 向左穿牆
+            if (x - leftTop.x * this.step > y - leftTop.y * this.step) {
+                x = (leftTop.x + 1) * this.step;
                 this.ballSpeedX = 0;
+            // 向上穿牆
+            } else {
+                y = (leftTop.y + 1) * this.step;
+                this.ballSpeedY = 0;
             }
-            if (doubleCornerResult.resetY) {
+        }
+        // 1.2. 左下角
+        if (
+            !isGridPath(leftBottom) &&
+            isGridPath(leftTop) &&
+            isGridPath(rightBottom) &&
+            isGridPath(rightTop)
+        ) {
+            // 向左穿牆
+            if (
+                (leftBottom.x + 1) * this.step - x <
+                y + this.ballDia - leftBottom.y * this.step
+            ) {
+                x = (leftBottom.x + 1) * this.step;
+                this.ballSpeedX = 0;
+            // 向下穿牆
+            } else {
+                y = leftBottom.y * this.step - this.ballDia;
+                this.ballSpeedY = 0;
+            }
+        }
+        // 1.3. 右下角
+        if (
+            !isGridPath(rightBottom) &&
+            isGridPath(rightTop) &&
+            isGridPath(leftBottom) &&
+            isGridPath(leftTop)
+        ) {
+            // 向右穿牆
+            if (
+                y + this.ballDia - rightBottom.y * this.step >
+                x + this.ballDia - rightBottom.x * this.step
+            ) {
+                x = rightBottom.x * this.step - this.ballDia;
+                this.ballSpeedX = 0;
+            // 向下穿牆
+            } else {
+                y = rightBottom.y * this.step - this.ballDia;
+                this.ballSpeedY = 0;
+            }
+        }
+        // 1.4. 右上角
+        if (
+            !isGridPath(rightTop) &&
+            isGridPath(rightBottom) &&
+            isGridPath(leftTop) &&
+            isGridPath(leftBottom)
+        ) {
+            // 向右穿牆
+            if (
+                (rightTop.y + 1) * this.step - y >
+                x + this.ballDia - rightTop.x * this.step
+            ) {
+                x = rightTop.x * this.step - this.ballDia;
+                this.ballSpeedX = 0;
+            // 向上穿牆
+            } else {
+                y = (rightTop.y + 1) * this.step;
                 this.ballSpeedY = 0;
             }
         }
 
-        return { x: newX, y: newY };
+        // 2. 同側兩個角穿牆
+        // 2.1. 左側
+        if (!isGridPath(leftTop) && !isGridPath(leftBottom)) {
+            x = (leftTop.x + 1) * this.step;
+            this.ballSpeedX = 0;
+        }
+        // 2.2. 下側
+        if (!isGridPath(leftBottom) && !isGridPath(rightBottom)) {
+            y = leftBottom.y * this.step - this.ballDia;
+            this.ballSpeedY = 0;
+        }
+        // 2.3. 右側
+        if (!isGridPath(rightTop) && !isGridPath(rightBottom)) {
+            x = rightTop.x * this.step - this.ballDia;
+            this.ballSpeedX = 0;
+        }
+        // 2.4. 上側
+        if (!isGridPath(leftTop) && !isGridPath(rightTop)) {
+            y = (leftTop.y + 1) * this.step;
+            this.ballSpeedY = 0;
+        }
+
+        return { x, y };
     }
 
     /**
