@@ -5,6 +5,36 @@
  */
 
 /**
+ * 遊戲常數配置
+ */
+const GAME_CONSTANTS = {
+    // 預設值
+    DEFAULT_MAZE_SIZE: 31,
+    DEFAULT_CELL_SIZE: 10,
+    DEFAULT_BALL_DIAMETER: 6,
+    DEFAULT_GAME_LEVEL: 0,
+    
+    // 移動控制
+    BALL_MOVE_STEP: 4,
+    MOVE_DELAY_MS: 15,
+    
+    // 迷宮生成
+    FORK_MAX_RATIO: 0.3,
+    
+    // UI 延遲
+    HINT_DELAY_MS: 5000,
+    
+    // 入口出口偏移
+    ENTRANCE_X_OFFSET: 1,
+    ENTRANCE_Y_OFFSET: 0,
+    EXIT_X_OFFSET: 2,
+    EXIT_Y_OFFSET: 1,
+    
+    // 特殊地圖尺寸
+    MAX_MAZE_SIZE: 101,
+};
+
+/**
  * 迷宮類實現
  *
  * @class Maze
@@ -25,11 +55,11 @@ class Maze {
     constructor(options) {
         this.elMaze = options.elMaze;
         this.elBall = options.elBall;
-        this.width = options.width || 31;
-        this.height = options.height || 31;
-        this.step = options.step || 10;
-        this.ballDia = options.ballDia || 6;
-        this.gameLevel = options.gameLevel || 0;
+        this.width = options.width || GAME_CONSTANTS.DEFAULT_MAZE_SIZE;
+        this.height = options.height || GAME_CONSTANTS.DEFAULT_MAZE_SIZE;
+        this.step = options.step || GAME_CONSTANTS.DEFAULT_CELL_SIZE;
+        this.ballDia = options.ballDia || GAME_CONSTANTS.DEFAULT_BALL_DIAMETER;
+        this.gameLevel = options.gameLevel || GAME_CONSTANTS.DEFAULT_GAME_LEVEL;
         this.keyDownHandler = this.keyDownHandler.bind(this);
         this.keyUpHandler = this.keyUpHandler.bind(this);
 
@@ -50,14 +80,14 @@ class Maze {
 
         // 入口位置
         this.entrance = {
-            x: 1,
-            y: 0,
+            x: GAME_CONSTANTS.ENTRANCE_X_OFFSET,
+            y: GAME_CONSTANTS.ENTRANCE_Y_OFFSET,
         };
 
         // 出口位置
         this.exit = {
-            x: this.width - 2,
-            y: this.height - 1,
+            x: this.width - GAME_CONSTANTS.EXIT_X_OFFSET,
+            y: this.height - GAME_CONSTANTS.EXIT_Y_OFFSET,
         };
 
         this.initMaze();
@@ -385,7 +415,7 @@ class Maze {
         // 所以需要控制生成多個候選方向時的概率，如 40%
 
         // 多個候選方向可以出現的最大概率
-        const maxRatio = 0.3;
+        const maxRatio = GAME_CONSTANTS.FORK_MAX_RATIO;
 
         // 當前的隨機概率
         const ratio = Math.random();
@@ -939,7 +969,7 @@ class Maze {
         window.clearInterval(this.moveInterval);
 
         // 信息提示
-        if (this.width === 101 && !this.useHint) {
+        if (this.width === GAME_CONSTANTS.MAX_MAZE_SIZE && !this.useHint) {
             // 最大地圖無提示通關
             M.toast({
                 html: `<span class="orange-text text-accent-4">
@@ -974,9 +1004,9 @@ class Maze {
         evt.preventDefault();
 
         // 不同方向的移動速度
-        const step = 4;
+        const step = GAME_CONSTANTS.BALL_MOVE_STEP;
         // 每次移動小球的延時
-        const delay = 15;
+        const delay = GAME_CONSTANTS.MOVE_DELAY_MS;
 
         switch (evt.key) {
             case "w":
@@ -1079,7 +1109,7 @@ function startGame() {
     setTimeout(() => {
         elGameHint.classList.remove("scale-out");
         elGameHint.classList.add("scale-in");
-    }, 5000);
+    }, GAME_CONSTANTS.HINT_DELAY_MS);
 }
 
 // 生成迷宮
