@@ -435,9 +435,8 @@ class Maze {
             right: null,
         };
 
-        // 處理隨機獲取候選方向的東西情況
+        // 處理隨機獲取候選方向的情況
         const randomDirections = [];
-        let flagRandom = false;
 
         // 最後匯總返回的方向
         const returnDirections = [];
@@ -478,20 +477,19 @@ class Maze {
         returnDirections.push(_directions["front"]);
         randomDirections.push(_directions["front"]);
 
-        // 獲取左前方的左前方的格子
-        // 左前方一定存在有效格子
+        // 處理左前方的情況
         const frontLeftGrid = this.getFrontLeftGrid(
             grid1.x,
             grid1.y,
             grid2.x,
             grid2.y
         );
-        if (!frontLeftGrid.isWall && !!_directions["left"]) {
-            // 如果左前方是圍牆，或者左邊沒有候選方向，
-            // 則跳過；
-
+        
+        // 如果左前方是圍牆，或者左邊沒有候選方向，跳過
+        if (frontLeftGrid.isWall || !_directions["left"]) {
+            isFrontLeftPath = false;
+        } else {
             // 否則繼續判斷左前方的左前方
-            // 此時左前方的左前方一定不會是圍牆
             const frontFrontLeftGrid = this.getFrontLeftGrid(
                 grid2.x,
                 grid2.y,
@@ -508,25 +506,21 @@ class Maze {
                 randomDirections.push(_directions["left"]);
                 isFrontLeftPath = false;
             }
-        } else {
-            // 標記為不是路，方便處理另外兩個方向可能出現隨機的情況
-            isFrontLeftPath = false;
         }
 
-        // 獲取右前方的左前方的格子
-        // 右前方一定存在有效格子
+        // 處理右前方的情況
         const frontRightGrid = this.getFrontRightGrid(
             grid1.x,
             grid1.y,
             grid2.x,
             grid2.y
         );
-        if (!frontRightGrid.isWall && !!_directions["right"]) {
-            // 如果右前方也是牆（很難出現）且存在右側候選方向，
-            // 則跳過
-
-            // 否則繼續判斷右前方的左前方
-            // 此時右前方的右前方一定不會是圍牆
+        
+        // 如果右前方是圍牆，或者右邊沒有候選方向，跳過
+        if (frontRightGrid.isWall || !_directions["right"]) {
+            isFrontRightPath = false;
+        } else {
+            // 否則繼續判斷右前方的右前方
             const frontFrontRightGrid = this.getFrontRightGrid(
                 grid2.x,
                 grid2.y,
@@ -535,28 +529,26 @@ class Maze {
             );
 
             if (frontFrontRightGrid.isPath) {
-                // 如果也是路，則需要返回 right 方位的候選方向
+                // 如果是路，則需要返回 right 方位的候選方向
                 returnDirections.push(_directions["right"]);
                 isFrontRightPath = true;
             } else {
                 // 如果不是，就要考慮隨機選擇 front, right
-                // 如果 left 方位也要考慮隨機，則隨機選擇 front, left, right
                 randomDirections.push(_directions["right"]);
                 isFrontRightPath = false;
             }
-        } else {
-            isFrontRightPath = false;
         }
 
         // 使用隨機的情況：
-        //   前方的前方不是路（可以挖）；
-        //   左右前方的前方只有一個是路時，選擇前面和另一個不是路的方位；
-        //   左右前方的前方都不是路時，randomDirections 中隨機選一個；
-        // 否則返回全部方向
-        flagRandom = !isFrontLeftPath && !isFrontRightPath;
+        //   左右前方的前方都不是路時，從 randomDirections 中隨機選一個
+        // 否則返回全部確定的方向
+        const shouldUseRandom = !isFrontLeftPath && !isFrontRightPath;
 
-        if (flagRandom) return this.getRandomDirection(randomDirections);
-        else return returnDirections;
+        if (shouldUseRandom) {
+            return this.getRandomDirection(randomDirections);
+        }
+        
+        return returnDirections;
     }
 
     /**
